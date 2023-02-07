@@ -1,9 +1,9 @@
 package edu.pdx.cs506.taskapplication;
 
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.PriorityQueue;
+import main.java.pdx.edu.CS506.Task;
+import main.java.pdx.edu.CS506.User;
+
+import java.util.*;
 
 public class TaskQueue {
     private HashMap<User, PriorityQueue<Task>> queue;
@@ -27,7 +27,22 @@ public class TaskQueue {
         });
         temp.add(task);
         queue.put(user,temp);
-}
+    }
+
+    public ArrayList<Task> searchTask(User user, String s){
+        if(!queue.containsKey(user)){
+            return null;
+        }
+        ArrayList<Task> list = new ArrayList<>();
+        PriorityQueue<Task> q = queue.get(user);
+
+        for(Task k:q){
+            if(k.getTitle().contains(s))
+                list.add(k);
+        }
+
+        return list;
+    }
 
     public Task getNext(User user) {
         return queue.get(user).peek();
