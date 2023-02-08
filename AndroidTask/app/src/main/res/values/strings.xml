@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Android Task</string>
+    <string name="add_task">Add New Task</string>
+    <string name="search">Search</string>
+    <string name="main">Switch User</string>
+    <string name="all_task">View All Tasks</string>
+</resources>
