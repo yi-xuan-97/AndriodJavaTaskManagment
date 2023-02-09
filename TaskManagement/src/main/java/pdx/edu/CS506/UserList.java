@@ -9,21 +9,6 @@ public class UserList {
         list = new ArrayList<>();
     }
 
-//    public User checkNAdd(User user){
-//        String name = user.getName();
-//        String email = user.getEmail();
-//        String password = user.getPassword();
-//
-//        for(User u:list){
-//            if(u.getEmail().equalsIgnoreCase(email) || u.getName().equals(name)){
-//                if(u.getPassword().equals(password))
-//                    return u;
-//            }
-//        }
-//        User newuser = new User(name,email,password);
-//        list.add(newuser);
-//        return newuser;
-//    }
     public User checkNAdd(String name, String email, String password){
         for(User u:list){
             if(u.getEmail().equalsIgnoreCase(email) || u.getName().equals(name)){
@@ -34,6 +19,22 @@ public class UserList {
         User newuser = new User(name,email,password);
         list.add(newuser);
         return newuser;
+    }
+
+    public void addList(ArrayList<User> l){
+       for(User u:l){
+           checkNAdd(u.getName(), u.getEmail(), u.getPassword());
+       }
+    }
+
+    public User searchUser(String user, String password){
+        for(User u:list){
+            if(u.getName().equals(user) || u.getEmail().equals(user)){
+               if(u.getPassword().equals(password))
+                   return u;
+            }
+        }
+        return null;
     }
 
     public ArrayList<User> getList(){

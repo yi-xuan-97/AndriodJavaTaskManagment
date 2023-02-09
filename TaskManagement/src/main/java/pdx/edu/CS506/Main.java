@@ -1,22 +1,16 @@
 package main.java.pdx.edu.CS506;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
 
 import java.util.regex.*;
 public class Main {
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws ParseException, IOException {
 
         for(String s:args)
             System.out.println(s);
@@ -82,6 +76,9 @@ public class Main {
             System.exit(0);
         }
         task.setDate(new Date(date));
+        task.setTitle(args[0]);
+        task.setDetail(args[1]);
+        task.setLocation(args[2]);
 
 
 
@@ -98,14 +95,39 @@ public class Main {
         TaskQueue list = new TaskQueue();
         list.addTask(person,task);
         list.addTask(person,task1);
-//        list.addTask(person1,task2);
+        list.addTask(person,task2);
         list.addTask(person,task3);
 
-        Queue q = list.getQueue(person);
-        while(!q.isEmpty()){
-            Task t = (Task) q.poll();
-            System.out.println(t.prettyPrint());
+//        Queue q = list.getQueue(person);
+//        while(!q.isEmpty()){
+//            Task t = (Task) q.poll();
+//            System.out.println(t.prettyPrint());
+//        }
+        for(Task temp:list.getQueue(person)){
+            System.out.println(temp.prettyPrint());
         }
+
+
+        String fileloc = "src/main/resources/" + person.getName() + ".txt";
+        File file = new File(fileloc);
+        FileReader fileReader = new FileReader(file);
+        TaskParser taskParser = new TaskParser(fileReader);
+        list.addQueue(person,taskParser.parse());
+
+
+        FileWriter filewriter = new FileWriter(file);
+        TaskDumper taskdumper = new TaskDumper(filewriter);
+        taskdumper.dump(person,list);
+
+        String fileloc1 = "src/main/resources/task_management_user_list.txt";
+        File file1 = new File(fileloc1);
+        FileReader fileReader1 = new FileReader(file1);
+        UserParser userParser = new UserParser(fileReader1);
+        userlist.addList(userParser.parse());
+
+        FileWriter filewriter1 = new FileWriter(file1);
+        UserDumper userdumper = new UserDumper(filewriter1);
+        userdumper.dump(userlist);
 
 //        System.out.println(("***********"));
 //        Queue q1 = list.getQueue(person1);

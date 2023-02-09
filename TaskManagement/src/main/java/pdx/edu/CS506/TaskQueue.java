@@ -26,6 +26,26 @@ public class TaskQueue {
         queue.put(user,temp);
     }
 
+    public void addQueue(User user, PriorityQueue<Task> pqueue){
+
+        if(queue.containsKey(user)){
+            for(Task t:pqueue)
+                queue.get(user).add(t);
+            return;
+        }
+        PriorityQueue<Task> temp = new PriorityQueue<>(new Comparator<Task>() {
+            @Override
+            public int compare(Task t1, Task t2) {
+                Date d1 = t1.getDate();
+                Date d2 = t2.getDate();
+                return d1.compareTo(d2);
+            }
+        });
+        for(Task t:pqueue)
+            temp.add(t);
+        queue.put(user,temp);
+    }
+
     public ArrayList<Task> searchTask(User user,String s){
         if(!queue.containsKey(user)){
             return null;

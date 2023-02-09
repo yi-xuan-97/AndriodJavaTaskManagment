@@ -21,4 +21,25 @@ public class UserListTest {
         list.checkNAdd("name","name@pdx.edu","Password123@");
         assertThat(list.getList().size(), equalTo(1));
     }
+
+    @Test
+    void searchUserExit(){
+        UserList list = new UserList();
+        list.checkNAdd("name","name@pdx.edu","Password123@");
+        User user1 = list.searchUser("name","Password123@");
+        assertThat(user1, notNullValue());
+        User user2 = list.searchUser("name@pdx.edu","Password123@");
+        assertThat(user2, notNullValue());
+    }
+
+    @Test
+    void searchUserNonExit(){
+        UserList list = new UserList();
+        list.checkNAdd("name","name@pdx.edu","Password123@");
+
+        User user1 = list.searchUser("name_test","Password123@");
+        assertThat(user1, nullValue());
+        User user2 = list.searchUser("name_test@pdx.edu","Password123@");
+        assertThat(user2, nullValue());
+    }
 }
