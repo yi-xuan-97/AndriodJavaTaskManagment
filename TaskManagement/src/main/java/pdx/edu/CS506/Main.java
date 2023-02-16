@@ -1,37 +1,188 @@
 package main.java.pdx.edu.CS506;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
+import java.util.Objects;
+import java.util.PriorityQueue;
 import java.util.regex.*;
 public class Main {
     public static void main(String[] args) throws ParseException, IOException {
 
-        for(String s:args)
-            System.out.println(s);
-
         UserList userlist = new UserList();
-        Task task = new Task();
+        TaskQueue list = new TaskQueue();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(System.in));
 
+        String fileloc1 = "src/main/resources/task_management_user_list.txt";
+        File file1 = new File(fileloc1);
+        FileReader fileReader1 = new FileReader(file1);
+        UserParser userParser = new UserParser(fileReader1);
+        userlist.addList(userParser.parse());
+
+        while(true){
+            User user = new User();
+            MongoDB mongoDB;
+            System.out.println("Do you have an account with us already? Y/N");
+            String res1 = reader.readLine().toUpperCase();
+            while(!res1.equals("Y") && !res1.equals("N"))
+                res1 = reader.readLine().toUpperCase();
+
+            switch (res1){
+                case "Y":{
+                    System.out.println("Please enter your username");
+                    String lname = reader.readLine();
+                    System.out.println("Please enter your password");
+                    String lpassword = reader.readLine();
+                    user = userlist.searchUser(lname,lpassword);
+                    if(user!=null)
+                        break;
+                    System.err.println("There is not existing account with the information you entered.");
+                }
+                case "N":{
+                    System.out.println("Let's register an account within 1 minutes! We will need some of your information.");
+                    System.out.println("Please enter an username:");
+                    String rname = reader.readLine();
+                    while(!checkUser(rname))
+                        rname = reader.readLine();
+
+
+                    System.out.println("Please enter an email:");
+                    String remail = reader.readLine();
+                    while(!checkEmail(remail))
+                        remail = reader.readLine();
+
+                    System.out.println("Please choose a password:");
+                    String rpassword = reader.readLine();
+                    while(!checkPassword(rpassword))
+                        rpassword = reader.readLine();
+
+                    if(userlist.searchUser(rname,rpassword)==null)
+                        user = userlist.checkNAdd(rname,remail,rpassword);
+                    else{
+                        System.err.println("The account already exist!");
+                        user = userlist.searchUser(rname,rpassword);
+                    }
+                    break;
+                }
+            }
+
+            mongoDB = new MongoDB(user.getName());
+            mongoDB.addUser(user.getName(),user.getEmail(),user.getPassword());
+
+            String fileloc = "src/main/resources/" + user.getName() + ".txt";
+            File file = new File(fileloc);
+            if(!file.exists())
+                file.createNewFile();
+            FileReader fileReader = new FileReader(file);
+            TaskParser taskParser = new TaskParser(fileReader);
+            list.addQueue(user,taskParser.parse());
+            PriorityQueue<Task> queue = list.getQueue(user);
+
+            while (true){
+
+                System.out.println("Please select what you would like to do:\n" +
+                        "1. Add new task\n" +
+                        "2. Display all your task\n" +
+                        "3. Search with task title\n" +
+                        "4. Switch user\n" +
+                        "5. Exit application");
+
+                int res2 = Integer.parseInt(reader.readLine());
+                System.out.println(res2);
+                while(res2<1 || res2>5)
+                    res2 = Integer.parseInt(reader.readLine());
+
+                if(res2==4)
+                    break;
+                else if(res2==5){
+                    FileWriter filewriter = new FileWriter(file);
+                    TaskDumper taskdumper = new TaskDumper(filewriter);
+                    taskdumper.dump(user,list);
+
+                    FileWriter filewriter1 = new FileWriter(file1);
+                    UserDumper userdumper = new UserDumper(filewriter1);
+                    userdumper.dump(userlist);
+                    return;
+                }
+
+                switch (res2){
+                    case 1:{
+                        Task task = new Task();
+
+                        System.out.println("Please enter your task title:");
+                        String title = reader.readLine();
+                        task.setTitle(title);
+
+                        System.out.println("Please enter your task date time: - MM/dd/yyyy HH:mm");
+                        String date = reader.readLine();
+                        while (!checkDate(date))
+                            date = reader.readLine();
+                        task.setDate(new Date(date));
+
+                        System.out.println("Please enter your task location:");
+                        String location = reader.readLine();
+                        task.setLocation(location);
+
+                        System.out.println("Please enter some note for your task:");
+                        String detail = reader.readLine();
+                        task.setDetail(detail);
+
+                        queue.add(task);
+
+                        mongoDB.addTask(title,date,location,detail);
+                        break;
+                    }
+                    case 2:{
+                        if(queue.size()==0){
+                            System.out.println("There is no task yet");
+                            break;
+                        }
+                        for(Task t:queue){
+                            System.out.println(t.prettyPrint());
+                        }
+                        break;
+                    }
+                    case 3:{
+                        System.out.println("Please enter a title you would like to search:");
+                        String searchTitle = reader.readLine();
+                        ArrayList<Task> arrayList = list.searchTask(user,searchTitle);
+                        if(arrayList.size()==0){
+                            System.out.println("No task with such title found");
+                            break;
+                        }
+                        for(Task t:arrayList){
+                            System.out.println(t.prettyPrint());
+                        }
+                        break;
+                    }
+                }
+
+            }
+
+        }
+
+    }
+
+    private static boolean checkUser(String username){
         //Check valid username
         //Must contain 5-30 characters
         //Can only contain underscores
-        String username = args[5];
         String regex = "^[A-Za-z]\\w{4,29}$";
         Pattern puser = Pattern.compile(regex);
         Matcher muser = puser.matcher(username);
         if(!muser.matches()) {
             System.err.println("Please make sure your username is valid.\nThe username should contains 5-30 character of alphanumeric characters and underscores.");
-            System.exit(0);
+            return false;
         }
+        return true;
+    }
 
+    private static boolean checkEmail(String email){
         //Check valid email address
-        String email = args[6];
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
                 "[a-zA-Z0-9_+&*-]+)*@" +
                 "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
@@ -40,15 +191,17 @@ public class Main {
         Matcher memail = pemail.matcher(email);
         if(!memail.matches()){
             System.err.println("Please make sure your email address is valid.");
-            System.exit(0);
+            return false;
         }
+        return true;
+    }
 
+    private static boolean checkPassword(String password){
         //Must have at least one numeric character
         //Must have at least one lowercase character
         //Must have at least one uppercase character
         //Must have at least one special symbol among @#$%
         //Password length should be between 8 and 20
-        String password = args[7];
         String regexpass = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20}$";
         Pattern pattern = Pattern.compile(regexpass);
         Matcher matcher = pattern.matcher(password);
@@ -57,13 +210,13 @@ public class Main {
                     "At leaset one numeric character\n" +
                     "At least one lowercase character\n" +
                     "At least one special symbol among @#$%\n" +
-                    "Password length should be between 8 and 20\n");
-            System.exit(0);
+                    "Password length should be between 8 and 20");
+            return false;
         }
+        return true;
+    }
 
-        User user = userlist.checkNAdd(username,email,password);
-
-        String date = args[3]+" "+args[4];
+    private static boolean checkDate(String date) throws ParseException {
         Date d = null;
         String format = "MM/dd/yyyy HH:mm";
         SimpleDateFormat sdf = new SimpleDateFormat(format);
@@ -73,74 +226,8 @@ public class Main {
         }
         if(d == null){
             System.err.println("Please enter valid date and time.");
-            System.exit(0);
+            return false;
         }
-        task.setDate(new Date(date));
-        task.setTitle(args[0]);
-        task.setDetail(args[1]);
-        task.setLocation(args[2]);
-
-
-
-//        Task task = new Task(args[0],args[1],args[2],date);
-
-        task.setTitle(args[0]);
-        User person = userlist.checkNAdd(args[5],args[6],args[7] );
-//        User person1 = userlist.checkNAdd(args[5],args[6],args[7] );
-
-        Task task1 = new Task("t1","task1","OR",new Date("01/28/2023 13:46"));
-        Task task2 = new Task("t2","task2","WA",new Date("01/27/2023 13:46"));
-        Task task3 = new Task("t3","task3","NY",new Date("01/24/2023 13:46"));
-
-        TaskQueue list = new TaskQueue();
-        list.addTask(person,task);
-        list.addTask(person,task1);
-        list.addTask(person,task2);
-        list.addTask(person,task3);
-
-//        Queue q = list.getQueue(person);
-//        while(!q.isEmpty()){
-//            Task t = (Task) q.poll();
-//            System.out.println(t.prettyPrint());
-//        }
-        for(Task temp:list.getQueue(person)){
-            System.out.println(temp.prettyPrint());
-        }
-
-
-        String fileloc = "src/main/resources/" + person.getName() + ".txt";
-        File file = new File(fileloc);
-        FileReader fileReader = new FileReader(file);
-        TaskParser taskParser = new TaskParser(fileReader);
-        list.addQueue(person,taskParser.parse());
-
-
-        FileWriter filewriter = new FileWriter(file);
-        TaskDumper taskdumper = new TaskDumper(filewriter);
-        taskdumper.dump(person,list);
-
-        String fileloc1 = "src/main/resources/task_management_user_list.txt";
-        File file1 = new File(fileloc1);
-        FileReader fileReader1 = new FileReader(file1);
-        UserParser userParser = new UserParser(fileReader1);
-        userlist.addList(userParser.parse());
-
-        FileWriter filewriter1 = new FileWriter(file1);
-        UserDumper userdumper = new UserDumper(filewriter1);
-        userdumper.dump(userlist);
-
-//        System.out.println(("***********"));
-//        Queue q1 = list.getQueue(person1);
-//        while(!q1.isEmpty()){
-//            Task t1 = (Task) q1.poll();
-//            if(t1!=null)
-//                System.out.println(t1.prettyPrint());
-//            else
-//                System.out.println("thing here!!!!NO TASK!!!");
-//        }
-
-
-
-
+        return true;
     }
 }

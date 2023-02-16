@@ -1,19 +1,6 @@
 t3|task3|NY|Tue Jan 24 13:46:00 PST 2023
-t3|task3|NY|Tue Jan 24 13:46:00 PST 2023
-t3|task3|NY|Tue Jan 24 13:46:00 PST 2023
 task1|need to finish hw1 asap|remote|Thu Jan 26 13:46:00 PST 2023
 t6|task364|NY|Tue Jan 24 13:46:00 PST 2023
-task1|need to finish hw1 asap|remote|Thu Jan 26 13:46:00 PST 2023
-t3|task3|NY|Tue Jan 24 13:46:00 PST 2023
-t1|task1|OR|Sat Jan 28 13:46:00 PST 2023
-task1|need to finish hw1 asap|remote|Thu Jan 26 13:46:00 PST 2023
-t2|task2|WA|Fri Jan 27 13:46:00 PST 2023
-task1|need to finish hw1 asap|remote|Thu Jan 26 13:46:00 PST 2023
-t1|task1|OR|Sat Jan 28 13:46:00 PST 2023
-t2|task2|WA|Fri Jan 27 13:46:00 PST 2023
-t2|task2|WA|Fri Jan 27 13:46:00 PST 2023
-task1|need to finish hw2|remote|Thu Jan 26 13:46:00 PST 2023
-t1|task1|OR|Sat Jan 28 13:46:00 PST 2023
 t1|task1|OR|Sat Jan 28 13:46:00 PST 2023
 t2|task2|WA|Fri Jan 27 13:46:00 PST 2023
 t27|task23242|WA|Fri Jan 27 13:46:00 PST 2023
