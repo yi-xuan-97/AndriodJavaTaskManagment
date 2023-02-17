@@ -5,23 +5,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.regex.*;
 public class Main {
     public static void main(String[] args) throws ParseException, IOException {
+//        AppWithFile();
+        AppWithCloud();
+    }
 
+    private static void AppWithCloud() throws IOException, ParseException {
         UserList userlist = new UserList();
         TaskQueue list = new TaskQueue();
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(System.in));
-
-        String fileloc1 = "src/main/resources/task_management_user_list.txt";
-        File file1 = new File(fileloc1);
-        FileReader fileReader1 = new FileReader(file1);
-        UserParser userParser = new UserParser(fileReader1);
-        userlist.addList(userParser.parse());
 
         while(true){
             User user = new User();
@@ -37,6 +35,8 @@ public class Main {
                     String lname = reader.readLine();
                     System.out.println("Please enter your password");
                     String lpassword = reader.readLine();
+                    mongoDB = new MongoDB(lname);
+                    userlist.addList(mongoDB.getUsers());
                     user = userlist.searchUser(lname,lpassword);
                     if(user!=null)
                         break;
@@ -73,16 +73,9 @@ public class Main {
             mongoDB = new MongoDB(user.getName());
             mongoDB.addUser(user.getName(),user.getEmail(),user.getPassword());
 
-            String fileloc = "src/main/resources/" + user.getName() + ".txt";
-            File file = new File(fileloc);
-            if(!file.exists())
-                file.createNewFile();
-            FileReader fileReader = new FileReader(file);
-            TaskParser taskParser = new TaskParser(fileReader);
-            list.addQueue(user,taskParser.parse());
-            PriorityQueue<Task> queue = list.getQueue(user);
-
             while (true){
+                PriorityQueue<Task> queue = mongoDB.getTasks();
+                list.addQueue(user,queue);
 
                 System.out.println("Please select what you would like to do:\n" +
                         "1. Add new task\n" +
@@ -91,23 +84,26 @@ public class Main {
                         "4. Switch user\n" +
                         "5. Exit application");
 
-                int res2 = Integer.parseInt(reader.readLine());
-                System.out.println(res2);
-                while(res2<1 || res2>5)
+                int res2 = 0;
+                try {
                     res2 = Integer.parseInt(reader.readLine());
+                } catch (NumberFormatException e) {
+                    System.err.println("That is not a choice");
+                    continue;
+                }
+                System.out.println(res2);
+                while(res2<1 || res2>5){
+                    try {
+                        res2 = Integer.parseInt(reader.readLine());
+                    } catch (NumberFormatException e) {
+                        System.err.println("That is not a choice");
+                    }
+                }
 
                 if(res2==4)
                     break;
-                else if(res2==5){
-                    FileWriter filewriter = new FileWriter(file);
-                    TaskDumper taskdumper = new TaskDumper(filewriter);
-                    taskdumper.dump(user,list);
-
-                    FileWriter filewriter1 = new FileWriter(file1);
-                    UserDumper userdumper = new UserDumper(filewriter1);
-                    userdumper.dump(userlist);
+                else if(res2==5)
                     return;
-                }
 
                 switch (res2){
                     case 1:{
@@ -164,7 +160,160 @@ public class Main {
             }
 
         }
+    }
 
+    private static void AppWithFile() throws IOException {
+        UserList userlist = new UserList();
+        TaskQueue list = new TaskQueue();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(System.in));
+
+        String fileloc1 = "src/main/resources/task_management_user_list.txt";
+        File file1 = new File(fileloc1);
+        FileReader fileReader1 = new FileReader(file1);
+        UserParser userParser = new UserParser(fileReader1);
+        userlist.addList(userParser.parse());
+
+        while(true){
+            User user = new User();
+            System.out.println("Do you have an account with us already? Y/N");
+            String res1 = reader.readLine().toUpperCase();
+            while(!res1.equals("Y") && !res1.equals("N"))
+                res1 = reader.readLine().toUpperCase();
+
+            switch (res1){
+                case "Y":{
+                    System.out.println("Please enter your username");
+                    String lname = reader.readLine();
+                    System.out.println("Please enter your password");
+                    String lpassword = reader.readLine();
+                    user = userlist.searchUser(lname,lpassword);
+                    if(user!=null)
+                        break;
+                    System.err.println("There is not existing account with the information you entered.");
+                }
+                case "N":{
+                    System.out.println("Let's register an account within 1 minutes! We will need some of your information.");
+                    System.out.println("Please enter an username:");
+                    String rname = reader.readLine();
+                    while(!checkUser(rname))
+                        rname = reader.readLine();
+
+
+                    System.out.println("Please enter an email:");
+                    String remail = reader.readLine();
+                    while(!checkEmail(remail))
+                        remail = reader.readLine();
+
+                    System.out.println("Please choose a password:");
+                    String rpassword = reader.readLine();
+                    while(!checkPassword(rpassword))
+                        rpassword = reader.readLine();
+
+                    if(userlist.searchUser(rname,rpassword)==null)
+                        user = userlist.checkNAdd(rname,remail,rpassword);
+                    else{
+                        System.err.println("The account already exist!");
+                        user = userlist.searchUser(rname,rpassword);
+                    }
+                    break;
+                }
+            }
+
+            String fileloc = "src/main/resources/" + user.getName() + ".txt";
+            File file = new File(fileloc);
+            if(!file.exists())
+                file.createNewFile();
+            FileReader fileReader = new FileReader(file);
+            TaskParser taskParser = new TaskParser(fileReader);
+            list.addQueue(user,taskParser.parse());
+            PriorityQueue<Task> queue = list.getQueue(user);
+
+            while (true){
+
+                System.out.println("Please select what you would like to do:\n" +
+                        "1. Add new task\n" +
+                        "2. Display all your task\n" +
+                        "3. Search with task title\n" +
+                        "4. Switch user\n" +
+                        "5. Exit application");
+
+                int res2 = Integer.parseInt(reader.readLine());
+                System.out.println(res2);
+                while(res2<1 || res2>5)
+                    res2 = Integer.parseInt(reader.readLine());
+
+                if(res2==4){
+                    FileWriter filewriter = new FileWriter(file);
+                    TaskDumper taskdumper = new TaskDumper(filewriter);
+                    taskdumper.dump(user,list);
+                    break;
+                }
+                else if(res2==5){
+                    FileWriter filewriter = new FileWriter(file);
+                    TaskDumper taskdumper = new TaskDumper(filewriter);
+                    taskdumper.dump(user,list);
+
+                    FileWriter filewriter1 = new FileWriter(file1);
+                    UserDumper userdumper = new UserDumper(filewriter1);
+                    userdumper.dump(userlist);
+                    return;
+                }
+
+                switch (res2){
+                    case 1:{
+                        Task task = new Task();
+
+                        System.out.println("Please enter your task title:");
+                        String title = reader.readLine();
+                        task.setTitle(title);
+
+                        System.out.println("Please enter your task date time: - MM/dd/yyyy HH:mm");
+                        String date = reader.readLine();
+                        while (!checkDate(date))
+                            date = reader.readLine();
+                        task.setDate(new Date(date));
+
+                        System.out.println("Please enter your task location:");
+                        String location = reader.readLine();
+                        task.setLocation(location);
+
+                        System.out.println("Please enter some note for your task:");
+                        String detail = reader.readLine();
+                        task.setDetail(detail);
+
+                        queue.add(task);
+
+                        break;
+                    }
+                    case 2:{
+                        if(queue.size()==0){
+                            System.out.println("There is no task yet");
+                            break;
+                        }
+                        for(Task t:queue){
+                            System.out.println(t.prettyPrint());
+                        }
+                        break;
+                    }
+                    case 3:{
+                        System.out.println("Please enter a title you would like to search:");
+                        String searchTitle = reader.readLine();
+                        ArrayList<Task> arrayList = list.searchTask(user,searchTitle);
+                        if(arrayList.size()==0){
+                            System.out.println("No task with such title found");
+                            break;
+                        }
+                        for(Task t:arrayList){
+                            System.out.println(t.prettyPrint());
+                        }
+                        break;
+                    }
+                }
+
+            }
+
+        }
     }
 
     private static boolean checkUser(String username){
@@ -216,11 +365,16 @@ public class Main {
         return true;
     }
 
-    private static boolean checkDate(String date) throws ParseException {
+    private static boolean checkDate(String date){
         Date d = null;
         String format = "MM/dd/yyyy HH:mm";
         SimpleDateFormat sdf = new SimpleDateFormat(format);
-        d = sdf.parse(date);
+        try {
+            d = sdf.parse(date);
+        } catch (ParseException e) {
+            System.err.println("Please enter valid date and time.");
+            return false;
+        }
         if (!date.equals(sdf.format(d))) {
             d = null;
         }

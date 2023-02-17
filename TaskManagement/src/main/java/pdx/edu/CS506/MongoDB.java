@@ -2,11 +2,21 @@ package main.java.pdx.edu.CS506;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
+import org.bson.json.JsonObject;
+
+
+import java.util.*;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.lt;
 
 public class MongoDB {
 
@@ -33,11 +43,53 @@ public class MongoDB {
         }
     }
 
-//    public User getUseer(String username,String password){
-//        collectionUserList.
-//    }
+    public ArrayList<User> getUsers(){
+        MongoCursor<Document> cursor = collectionUserList.find().cursor();
+        ArrayList<User> temp = new ArrayList<>();
+
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                User user = new User((String) obj.get("username"), (String) obj.get("email"), (String) obj.get("password"));
+                temp.add(user);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return temp;
+    }
+
+    public PriorityQueue<Task> getTasks(){
+        MongoCursor<Document> cursor = collectionTaskList.find().cursor();
+        PriorityQueue<Task> temp = new PriorityQueue<>(new Comparator<Task>() {
+            @Override
+            public int compare(Task t1, Task t2) {
+                Date d1 = t1.getDate();
+                Date d2 = t2.getDate();
+                return d1.compareTo(d2);
+            }
+        });
+
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                Task t = new Task((String) obj.get("title"), (String) obj.get("detail"), (String) obj.get("location"),new Date((String) obj.get("date")));
+                temp.add(t);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return temp;
+    }
     public void addUser(String username,String email, String password){
-        Document tempDoc = new Document("_id", email+"_"+password).append("username",username).append("email",email).append("password",password);
+        Document doc = collectionUserList.find(eq("_id", username+"_"+password)).first();
+        if (doc != null) {
+            System.err.println("Account already exist!");
+            return;
+        }
+        Document tempDoc = new Document("_id", username+"_"+password).append("username",username).append("email",email).append("password",password);
         collectionUserList.insertOne(tempDoc);
     }
 
