@@ -3,6 +3,7 @@ package edu.pdx.cs506.androidtask;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -10,10 +11,18 @@ import android.widget.Button;
 import android.content.Intent;
 import android.widget.Toast;
 
+import io.realm.Realm;
+import io.realm.mongodb.App;
+import io.realm.mongodb.AppConfiguration;
+import io.realm.mongodb.Credentials;
+import io.realm.mongodb.User;
+
 public class MainActivity extends AppCompatActivity {
 
-    private UserList userlist = new UserList();
-    private TaskQueue taskqueue = new TaskQueue();
+//    private UserList userlist = new UserList();
+//    private TaskQueue taskqueue = new TaskQueue();
+
+    String appId = "taskapp-dtpif";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +30,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+        Realm.init(this);
+        App app = new App(new AppConfiguration.Builder(appId).build());
 
+        Credentials credentials = Credentials.anonymous();
+        app.loginAsync(credentials, new App.Callback<User>() {
+            @Override
+            public void onResult(App.Result<User> result) {
+                if(result.isSuccess()){
+                    Log.v("User","Logged in anonymous");
+                }
+                else{
+                    Log.v("User","Failed to log in");
+                }
+            }
+        });
 
         Button signin = findViewById(R.id.main_signin);
         signin.setOnClickListener((view -> {
