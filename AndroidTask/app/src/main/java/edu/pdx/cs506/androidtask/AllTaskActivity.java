@@ -1,18 +1,56 @@
 package edu.pdx.cs506.androidtask;
 
+import static edu.pdx.cs506.androidtask.MainActivity.mongoCollection_TaskList;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.bson.Document;
+
+import io.realm.mongodb.RealmResultTask;
+import io.realm.mongodb.mongo.iterable.MongoCursor;
 
 public class AllTaskActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alltask);
+
+        TextView all_task = findViewById(R.id.print_all_task);
+        Document document = new Document().append("user",MainActivity.credential);
+        RealmResultTask<MongoCursor<Document>> findTask = mongoCollection_TaskList.find(document).iterator();
+        findTask.getAsync(task -> {
+            if (task.isSuccess()) {
+                MongoCursor<Document> results = task.get();
+                Log.v("TASK LIST", "successfully found all task for user:");
+                while (results.hasNext()) {
+                    Document d = results.next();
+                    String title = d.get("title").toString();
+                    String time = d.get("time").toString();
+                    String location = d.get("location").toString();
+                    String detail = d.get("detail").toString();
+                    String s =
+                            "\n  Event: " + title +
+                            "\n  Time: " + time +
+                            "\n  Location: " + location +
+                            "\n  Detail: " + detail + "\n";
+                    Log.v("EXAMPLE", s);
+                    all_task.append(s);
+                }
+            } else {
+                Log.e("TASK LIST", "failed to find documents with: ", task.getError());
+            }
+        });
+
 
 
     }

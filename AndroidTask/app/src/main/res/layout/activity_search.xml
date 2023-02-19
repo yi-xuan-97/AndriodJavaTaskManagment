@@ -11,13 +11,15 @@
         android:id="@+id/search_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
-        android:text="Button"
+        android:layout_marginTop="88dp"
+        android:text="Search"
         app:backgroundTint="#4CAF50"
-        app:layout_constraintBottom_toTopOf="@+id/search_result"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.873" />
 
     <EditText
         android:id="@+id/search"
@@ -31,17 +33,27 @@
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.851" />
+        app:layout_constraintVertical_bias="0.881" />
 
-    <TextView
-        android:id="@+id/search_result"
-        android:layout_width="377dp"
-        android:layout_height="434dp"
-        android:layout_marginBottom="4dp"
-        android:background="#E8E6D9"
+    <ScrollView
+        android:id="@+id/scrollView3"
+        android:layout_width="407dp"
+        android:layout_height="492dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.481"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:id="@+id/search_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#E8E6D9"
+            android:lineSpacingExtra="8sp"
+            android:textSize="18sp"
+            app:layout_constraintHorizontal_bias="0.481" />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,26 +17,13 @@
         app:layout_constraintHorizontal_bias="0.49"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.46" />
-
-    <EditText
-        android:id="@+id/task_title"
-        android:layout_width="345dp"
-        android:layout_height="46dp"
-        android:layout_marginBottom="28dp"
-        android:ems="10"
-        android:hint="Task title"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/task_date"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.515"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintVertical_bias="0.72" />
 
     <EditText
         android:id="@+id/task_detail"
         android:layout_width="346dp"
         android:layout_height="41dp"
-        android:layout_marginBottom="52dp"
+        android:layout_marginBottom="56dp"
         android:ems="10"
         android:hint="Task detail"
         android:inputType="textPersonName"
@@ -49,7 +36,7 @@
         android:id="@+id/addtask_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="76dp"
+        android:layout_marginBottom="104dp"
         android:text="Add task"
         app:backgroundTint="#4CAF50"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -58,26 +45,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/task_date"
-        android:layout_width="345dp"
-        android:layout_height="43dp"
-        android:layout_marginBottom="36dp"
-        android:ems="10"
-        android:hint="Date"
-        android:inputType="date"
-        app:layout_constraintBottom_toTopOf="@+id/task_time"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.53"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
         android:id="@+id/task_time"
         android:layout_width="348dp"
         android:layout_height="42dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="48dp"
         android:ems="10"
-        android:hint="Time"
-        android:inputType="time"
+        android:hint="MM/dd/yyyy HH:mm"
+        android:inputType="text"
         app:layout_constraintBottom_toTopOf="@+id/task_location"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.523"
@@ -87,13 +61,25 @@
         android:id="@+id/task_location"
         android:layout_width="342dp"
         android:layout_height="43dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="56dp"
         android:ems="10"
         android:hint="Location"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@+id/task_detail"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.536"
+        app:layout_constraintHorizontal_bias="0.521"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/task_title"
+        android:layout_width="345dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="48dp"
+        android:ems="10"
+        android:hint="Task title"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/task_time"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
