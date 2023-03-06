@@ -48,17 +48,20 @@ public class SignupActivity extends AppCompatActivity {
             String email = emailEditText.getText().toString();
             String password = passEditText.getText().toString();
 
-            if(!checkUser(username)){
-                error_info += "Username should contains 5-30 alphanumeric characters and underscores\n\n";
-            }
-            if(!checkEmail(email)){
-                error_info += "Invalid email format\n\n";
-            }
             if(!checkPassword(password)){
-                error_info += "Password must have: at leaset one numeric character, one lowercase character, one special symbol among @#$% and length should be between 8 and 20\n";
+                error_info = "Password must have: at leaset one numeric character, one lowercase and uppercase character, one special symbol among @#$% and length should be between 8 and 20\n";
+            }
+
+            if(!checkEmail(email)){
+                error_info = "Invalid email format\n\n";
+            }
+
+            if(!checkUser(username)){
+                error_info = "Username should contains 5-30 alphanumeric characters and underscores\n\n";
             }
 
             err.setText(error_info);
+
 
             if(checkUser(username) && checkEmail(email) && checkPassword(password)){
                 MainActivity.mongoCollection_userList.insertOne(new Document("_id",username+"_"+password)

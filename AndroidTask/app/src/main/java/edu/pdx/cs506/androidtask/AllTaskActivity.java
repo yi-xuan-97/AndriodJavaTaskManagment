@@ -31,20 +31,26 @@ public class AllTaskActivity extends AppCompatActivity {
         findTask.getAsync(task -> {
             if (task.isSuccess()) {
                 MongoCursor<Document> results = task.get();
-                Log.v("TASK LIST", "successfully found all task for user:");
-                while (results.hasNext()) {
-                    Document d = results.next();
-                    String title = d.get("title").toString();
-                    String time = d.get("time").toString();
-                    String location = d.get("location").toString();
-                    String detail = d.get("detail").toString();
-                    String s =
-                            "\n  Event: " + title +
-                            "\n  Time: " + time +
-                            "\n  Location: " + location +
-                            "\n  Detail: " + detail + "\n";
-                    Log.v("EXAMPLE", s);
-                    all_task.append(s);
+                if(results.hasNext()){
+
+                    Log.v("TASK LIST", "successfully found all task for user:");
+                    while (results.hasNext()) {
+                        Document d = results.next();
+                        String title = d.get("title").toString();
+                        String time = d.get("time").toString();
+                        String location = d.get("location").toString();
+                        String detail = d.get("detail").toString();
+                        String s =
+                                "\n  Event: " + title +
+                                        "\n  Time: " + time +
+                                        "\n  Location: " + location +
+                                        "\n  Detail: " + detail + "\n";
+                        Log.v("EXAMPLE", s);
+                        all_task.append(s);
+                    }
+                }
+                else{
+                    all_task.setText("\nThere is no task yet, try add a new task.");
                 }
             } else {
                 Log.e("TASK LIST", "failed to find documents with: ", task.getError());

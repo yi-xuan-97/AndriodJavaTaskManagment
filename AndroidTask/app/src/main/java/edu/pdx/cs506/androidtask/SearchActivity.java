@@ -31,6 +31,7 @@ public class SearchActivity extends AppCompatActivity {
         Button search_btn = findViewById(R.id.search_btn);
 
         search_btn.setOnClickListener((view -> {
+            res.setText("");
             String s = search.getText().toString();
 
             Document document = new Document().append("user",MainActivity.credential).append("title",s);
@@ -38,9 +39,9 @@ public class SearchActivity extends AppCompatActivity {
             findTask.getAsync(task -> {
                 if (task.isSuccess()) {
                     MongoCursor<Document> results = task.get();
-                    if(results!=null){
+                    if(results.hasNext()){
 
-                        Log.v("TASK LIST", "successfully found all task for user:");
+                        Log.v("TASK LIST", "successfully found all task for user:" );
                         while (results.hasNext()) {
                             Document d = results.next();
                             String title = d.get("title").toString();

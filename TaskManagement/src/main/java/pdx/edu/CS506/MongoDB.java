@@ -33,7 +33,7 @@ public class MongoDB {
                 .applyConnectionString(connectionString)
                 .build();
         mongoClient = MongoClients.create(settings);
-        database = mongoClient.getDatabase("Application");
+        database = mongoClient.getDatabase("JavaSync");
         collectionUserList = database.getCollection("UserList");
         collectionTaskList = database.getCollection(name);
         if(collectionTaskList==null){
